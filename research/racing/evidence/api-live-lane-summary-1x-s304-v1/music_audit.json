@@ -1,0 +1,34 @@
+{
+  "music": "original procedurally composed electronic instrumental",
+  "seed": 304,
+  "tempo_bpm": 112,
+  "source_video_sha256": "098728c3b71de584215aee6a4db878124b020b4fc7e3ea27bbdbddacb7274a62",
+  "unchanged_encoded_video_sha256": "SHA256=8351f7565f42002d3d45fc3913436b1ef108c3d1b6e904afd6aa16536c8a988c",
+  "video_packets_identical": true,
+  "music_target_lufs": -22,
+  "fade_in_s": 1.8,
+  "fade_out_s": 3.5,
+  "no_external_recordings_or_model_calls": true,
+  "probe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "20/1",
+        "nb_frames": "1781"
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "r_frame_rate": "0/0",
+        "nb_frames": "4173"
+      }
+    ],
+    "format": {
+      "duration": "89.050000"
+    }
+  }
+}

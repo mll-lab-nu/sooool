@@ -79,7 +79,7 @@ Each new run preserves `manifest.json` (hypothesis, recipe, policy/profile/envir
 
 The [record-writing guide](../research/racing/RECORDS.md) defines comparison and promotion gates. Historical compact records live in [research/racing/evidence](../research/racing/evidence/); original run IDs and hashes remain intact.
 
-[Watch/download the featured seed304 video](../artifacts/videos/racing-seed304-win-loss-win.mp4). It is a verified trajectory replay of real API gameplay, 1920×1080/20 fps, at original game speed. Review waits are omitted. The original heat order was loss/win/win; the presentation is edited to **win/loss/win (original heats 2/1/3)** and labeled on every frame. Original clock, score and response text are retained. Video ordering is never an evaluation result.
+[Watch/download the featured seed304 video](../artifacts/videos/racing-seed304-win-loss-win.mp4). It is a verified trajectory replay of real API gameplay, 1920×1080/20 fps, at original game speed. Review waits are omitted. The original heat order was loss/win/win; the presentation is edited to **win/loss/win (original heats 2/1/3)** and labeled on every frame. Original clock, score and response text are retained. A quiet original electronic instrumental was composed procedurally and added in post-production; encoded video packets are unchanged (see the music audit). Video ordering and soundtrack are never evaluation results.
 
 ![Selected Racing run](../policies/racing/lane-commit-v14/preview.png)
 

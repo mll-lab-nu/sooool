@@ -44,6 +44,6 @@ This does **not** isolate GPT's causal gain: the historical model cohorts were n
 
 ## Presentation and selection
 
-The featured video contains all three heats from the summary variant; no later model generates commentary. The right panel and game view are reordered together from original heats **1/2/3 (loss/win/win)** to **2/1/3 (win/loss/win)**. A continuous disclosure names the original heat. The [edit audit](evidence/api-live-lane-summary-1x-s304-v1/edit_audit.json) records exact frame ranges. The evaluated result remains the original 2:1 match.
+The featured video contains all three heats from the summary variant; no later model generates commentary. The right panel and game view are reordered together from original heats **1/2/3 (loss/win/win)** to **2/1/3 (win/loss/win)**. A continuous disclosure names the original heat. The [edit audit](evidence/api-live-lane-summary-1x-s304-v1/edit_audit.json) records exact frame ranges. The evaluated result remains the original 2:1 match. The featured release adds a quiet original procedural electronic instrumental in post-production; [audio audit](evidence/api-live-lane-summary-1x-s304-v1/music_audit.json) verifies identical encoded video packets.
 
 The selected release is deliberately narrow: one understandable policy, its development lineage, and independently replayed real-time evidence. It does not claim strict direct GPT steering, broad robustness or a fully autonomous search without human direction. See [record requirements](RECORDS.md) before adding a result.

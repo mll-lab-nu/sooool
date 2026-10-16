@@ -119,8 +119,8 @@
     },
     {
       "path": "research/racing/EVALUATION.md",
-      "bytes": 7016,
-      "sha256": "6a173e863692cd67a75b41736c2955e0d2e5bb7011244ca6b4323e3ee1a1ac78"
+      "bytes": 7230,
+      "sha256": "63ed1d225409ed90a755c759b35f6060e5cfe51695e2e6c2891b882c1304a050"
     },
     {
       "path": "research/racing/RECORDS.md",
@@ -354,13 +354,23 @@
     },
     {
       "path": "docs/racing.md",
-      "bytes": 8951,
-      "sha256": "2e24edb9ab34af20ff9c3a2be89f2cc827dec2056acf36419998c568ccf68358"
+      "bytes": 9121,
+      "sha256": "04a80ed580319a8d721c011908e7f085c3ac62b80e1438be039bdfd4f3a6f5a4"
     },
     {
       "path": "artifacts/videos/racing-seed304-win-loss-win.mp4",
-      "bytes": 15319191,
-      "sha256": "098728c3b71de584215aee6a4db878124b020b4fc7e3ea27bbdbddacb7274a62"
+      "bytes": 17689165,
+      "sha256": "644a8209da42399764b83dbce55072b9fae6f35f8e5694115029d21ab6effabf"
+    },
+    {
+      "path": "scripts/score_racing_video.py",
+      "bytes": 5065,
+      "sha256": "58c81d479eb482c5fb13627faa9ca9282130d8300a024384a20cc9b4d8d9f181"
+    },
+    {
+      "path": "research/racing/evidence/api-live-lane-summary-1x-s304-v1/music_audit.json",
+      "bytes": 897,
+      "sha256": "082131c88a993414368b1fe824e36707a85a466f5651e189eb65477db7044f5f"
     }
   ]
 }

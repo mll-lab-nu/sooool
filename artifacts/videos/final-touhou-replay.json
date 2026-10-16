@@ -1,0 +1,32 @@
+{
+  "kind": "verified_applied_action_replay",
+  "game": "touhou",
+  "fps": 15,
+  "speed": 1,
+  "frames": 842,
+  "summary": {
+    "status": "lost",
+    "seed": 9,
+    "candidate": "tracking_dodge_safe_intercept_v2",
+    "mode": "sim",
+    "provider": "subscription",
+    "speed": 1,
+    "tick": 2929,
+    "game_s": 48.81666666666667,
+    "visual_frames": 3364,
+    "wall_s": 388.31220606999705,
+    "boss_hp": 260,
+    "hits": 3,
+    "lives": 0,
+    "bombs": 0,
+    "score": 5980,
+    "calls": 68,
+    "drops": 82,
+    "applied": 16,
+    "invalid_actions": 0,
+    "replayed_calls": 0,
+    "complete": true,
+    "won": false
+  },
+  "model_calls": 0
+}

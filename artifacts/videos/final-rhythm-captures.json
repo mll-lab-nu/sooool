@@ -1,0 +1,42 @@
+{
+  "kind": "recorded_observation_capture_sequence",
+  "not_uninterrupted_realtime_recording": true,
+  "source_captures": 215,
+  "virtual_duration_s": 30.001,
+  "audio": false,
+  "model_calls": 0,
+  "summary": {
+    "mode": "subscription_virtual_joint_delay_simulation",
+    "candidate": "packaged-v19",
+    "seed": 79,
+    "evaluator": {
+      "state": "result",
+      "time_s": 30.001,
+      "score": 50700,
+      "combo": 1,
+      "max_combo": 33,
+      "judged": 52,
+      "counts": {
+        "perfect": 50,
+        "great": 1,
+        "ok": 0,
+        "miss": 1
+      },
+      "empty_presses": 1,
+      "total_notes": 52
+    },
+    "complete": true,
+    "passed": false,
+    "legacy_two_miss_passed": true,
+    "requests": 203,
+    "delivered_plans": 191,
+    "transaction_rejections": 0,
+    "errors": 0,
+    "dropped_capture_requests": 12,
+    "undelivered_requests_at_end": 12,
+    "policy_unchanged": true,
+    "paid_api_calls": 0,
+    "wall_s": 321.41285580201657,
+    "output": "/home/ubuntu/wzh/sol-realtime-repro-20261015/runs/final-validation-rhythm/episodes/packaged-v19-seed79-46ac72e2"
+  }
+}

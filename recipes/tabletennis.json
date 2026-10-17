@@ -15,5 +15,7 @@
   "model_workers": 4,
   "request_interval_s": 0.65,
   "rules_policy": "safe_center",
-  "control": "SOL selects persistent shot policies over a continuous camera-only reference"
+  "control": "SOL selects persistent shot policies over a continuous camera-only reference",
+  "simulation_profile": "profiles/tabletennis/historical-api-proxy.json",
+  "simulation_delay_seed": 7319
 }

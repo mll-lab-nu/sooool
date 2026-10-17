@@ -38,7 +38,7 @@ of queuing old screenshots. This follows the bounded actor scheduling used by
 the rhythm project and the response validation/provenance approach used by the
 Touhou project. It is not a same-observation four-way race.
 
-A valid model strategy is required before starting the physical clock. This
+API evaluation requires a valid model strategy before starting the physical clock. This
 initialization call is labeled separately. During gameplay, the last accepted
 model strategy persists until replaced. A flight freezes its strategy when its
 first stroke is committed. A response cannot change an already committed flight.
@@ -72,7 +72,7 @@ export MUJOCO_EGL_DEVICE_ID=0  # use an allocated GPU
 On the existing development server, `.runtime-libs` supplies the isolated Numba
 runtime through PYTHONPATH. Commands below are run from the repository root.
 The installed `sol` launcher also accepts `sol eval pingpong` and
-`sol report pingpong`; `tabletennis` is an alias for the same implementation.
+`sol simulate pingpong` and `sol report pingpong`; `tabletennis` is an alias for the same implementation.
 
 ```bash
 python scripts/tabletennis.py eval --source rules --rules-policy safe_center \
@@ -144,3 +144,36 @@ The game launchers already use separate processes. For example:
 python -m unittest tests.test_tabletennis tests.test_tabletennis_realtime \
   tests.test_tabletennis_replay tests.test_pingpong_cli
 ```
+
+## Subscription simulation
+
+```bash
+sol simulate pingpong --seed 11 --output runs/tabletennis/sim-new
+```
+
+This makes fresh `gpt-6.1-sol / low` subscription calls, with no API fallback or
+paid API calls. One native subscription worker computes replies for four virtual request slots
+(`--model-workers` selects virtual capacity in this mode) using the recipe's priority tier;
+actual subscription computation time is recorded separately from sampled API
+latency. Physics uses a virtual clock with 100 Hz native steps. At each 20 Hz
+camera/control boundary the coordinator admits the next five native frames.
+Replies cannot be used before their sampled delivery frame, rounded up to a
+camera boundary. If subscription computation has not finished at that frame,
+the simulator waits there. The same sampled row retains its paired terminal time;
+a delivered request keeps its worker slot until that virtual terminal boundary. Rendering and rule-control time can also slow the
+run. This is development simulation, never actual wall-clock API acceptance.
+The camera controller and native robot planning remain the same as evaluation.
+Native planning cannot gain free virtual compute during a model wait: each
+prepared result is also gated by its measured worker duration in virtual time;
+missed installation deadlines are still rejected.
+
+The default profile is `profiles/tabletennis/historical-api-proxy.json`: 12 retained
+serial Sol/Low/Ultrafast API calls from an earlier direct-action streaming workload.
+Median JSON readiness is 1.149 s and nearest-rank P95 is 3.015 s. It is a **proxy**
+for the current persistent tactical-policy task, not an exact workload or four-worker
+calibration. Only valid paired calls are represented; provider failures are not
+sampled. Use `--profile /path/to/profile.json` and `--delay-seed N` to override it.
+The run freezes the full selected profile, its SHA256 and delay seed. Future sampled
+delays stay in scheduler logs and never enter model prompts. Summaries distinguish
+subscription wall latency, sampled API latency and gameplay clock mode. A new
+same-workload API profile requires a separately authorized paid measurement run.

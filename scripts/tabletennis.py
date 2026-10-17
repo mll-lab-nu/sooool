@@ -1,4 +1,4 @@
-"""Run actual-wall table tennis with the reference or asynchronous SOL tactics."""
+"""Run table tennis evaluation or subscription/API-profile development simulation."""
 from __future__ import annotations
 
 import argparse
@@ -16,9 +16,11 @@ sys.path.insert(0, str(ROOT))
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["eval", "report"])
+    parser.add_argument("command", choices=["simulate", "eval", "report"])
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--source", choices=["rules", "sol", "api"], default="rules")
+    parser.add_argument("--source", choices=["rules", "sol", "api"], default=None)
+    parser.add_argument("--profile", type=Path)
+    parser.add_argument("--delay-seed", type=int)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--duration", type=float)
     parser.add_argument("--slowdown", type=float)
@@ -40,6 +42,11 @@ def main(argv=None):
     if args.output.exists():
         parser.error("Output directory must be new")
     config = json.loads((ROOT / "recipes/tabletennis.json").read_text())
+    args.source = args.source or ("sol" if args.command == "simulate" else "rules")
+    if args.command == "simulate" and args.source != "sol":
+        parser.error("simulate requires live subscription decisions (--source sol)")
+    if args.command == "eval" and (args.profile is not None or args.delay_seed is not None):
+        parser.error("profile and delay-seed are simulation-only")
     for name in ("source", "seed", "duration", "slowdown", "max_calls", "model_workers", "request_interval_s", "rules_policy"):
         value = getattr(args, name)
         if value is not None:
@@ -52,10 +59,18 @@ def main(argv=None):
         ["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
         repository_revision_is_base=True, source_path=str(ROOT),
         environment_root=str(Path(os.environ["TABLETENNIS_ENV_ROOT"]).resolve()),
-        clock="actual_wall_" + args.source,
+        clock="subscription_with_simulated_api_profile" if args.command == "simulate" else "actual_wall_" + args.source,
+        simulation=args.command == "simulate",
         native_planner="two-phase asynchronous native IK/trajectory + robot-only servo rehearsal",
         gpu_device=os.environ.get("MUJOCO_EGL_DEVICE_ID"), catch_up_steps=0,
         capture_stride=5, max_output_tokens=512, timeout_seconds=60)
+    if args.command == "simulate":
+        from environments.tabletennis.simulation import load_profile
+        profile_path = (args.profile or ROOT / config["simulation_profile"]).resolve()
+        profile = load_profile(profile_path)
+        config.update(latency_profile=profile, latency_profile_path=str(profile_path),
+                      delay_seed=args.delay_seed if args.delay_seed is not None else config["simulation_delay_seed"],
+                      paid_api_calls=0, real_time_api_acceptance=False)
     if args.source == "api":
         if args.api_key_file is None or args.api_budget_file is None:
             parser.error("API runs require an existing key file and an explicit cumulative budget ledger")
@@ -65,7 +80,7 @@ def main(argv=None):
     from environments.tabletennis.runner import run_episode
     with tempfile.TemporaryDirectory(prefix="tabletennis-source-") as frozen:
         for name in ("environments/tabletennis", "environments/badminton/public.py",
-                     "policies/tabletennis", "recipes/tabletennis.json", "scripts/tabletennis.py",
+                     "policies/tabletennis", "profiles/tabletennis", "recipes/tabletennis.json", "scripts/tabletennis.py",
                      "runtime/subscription.py", "runtime/api.py", "runtime/cli.py"):
             target = Path(frozen) / name
             target.parent.mkdir(parents=True, exist_ok=True)

@@ -39,6 +39,27 @@ rate alone is not a high useful-action rate. The selected Touhou two-/four-way
 runs are demonstrations, not enough repetitions to estimate a race-specific
 performance improvement.
 
+## Selected request-handling details
+
+Touhou allows four requests in its real-time recipe and eight in simulation. A
+winning action can take effect before all other requests finish; the remaining
+requests keep their slots until completion. Another observation group needs a
+winner to have taken effect, movement to have finished, and enough free slots.
+See the [simulation recipe](../recipes/touhou.json) and
+[real-time recipe](../recipes/touhou-realtime.json).
+
+Rhythm's executor prevents older replies from cancelling or replacing newer
+instructions. An older additive reply may still schedule a valid tap whose ID
+has not already been used. Taps expire according to the model's `expires_ms`,
+not simply because their target time has passed. These rules are implemented in
+[model-executor.js](../environments/rhythm/dist/model-executor.js).
+
+Asterix's selected serial configuration followed limited comparisons of one and
+eight in-flight requests. Both serial trials survived longer, but the score
+ordering depended on the output format. This motivates further testing rather
+than establishing that serial control is always better. See the
+[research comparison](asterix-autoresearch.md#4-compare-scheduling-and-public-explanations).
+
 ## Autoresearch is task-policy training
 
 Repeatedly playing a fixed task, inspecting failures, exploring alternatives and

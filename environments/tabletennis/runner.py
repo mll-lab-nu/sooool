@@ -65,6 +65,7 @@ def run_episode(config, output):
     installed_legs = set()
     return_origins = {}
     final = None
+    controller_error = None
     started = time.monotonic()
     log_file = (output / "events.jsonl").open("w", buffering=1)
 
@@ -285,6 +286,9 @@ def run_episode(config, output):
                 advance.put(frame + config["capture_stride"])
         if final["error"] is not None:
             raise RuntimeError(final["error"])
+    except BaseException as exc:
+        controller_error = f"{type(exc).__name__}: {exc}"
+        raise
     finally:
         stop.set()
         start.set()
@@ -332,6 +336,8 @@ def run_episode(config, output):
                    "latency_profile_sha256": config.get("latency_profile", {}).get("sha256"),
                    "control_compute_seconds": stats(control_costs),
                    "total_wall_seconds": time.monotonic() - started}
+        if controller_error is not None:
+            summary.update(status="failed", controller_error=controller_error)
         if budget is not None:
             summary["api_budget"] = budget.snapshot()
             write(output / "budget-after.json", summary["api_budget"])

@@ -139,6 +139,37 @@ Touhou and Rhythm use the paid API for this test. Asterix uses actual subscripti
 
 A changed prompt, image count, or concurrency setting can change response times, so the profile may need to be measured again. Simulated results and real-time results are recorded separately.
 
+### Reproduction: subscription and realtime timing
+
+The selected runners request **`gpt-6.1-sol`, reasoning effort `low`**. Match the recipe, policy, seed, delay seed, game speed and transport when reproducing a result. Subscription simulation makes fresh model calls but schedules delivery on a virtual clock; realtime evaluation uses actual response timing with a continuously advancing clock. **Realtime does not inject the profile delays below.**
+
+| Game | Subscription simulation (`simulate`) | Realtime evaluation (`eval`) | Game speed |
+|---|---|---|---|
+| [Touhou](docs/release-guide.md#touhou-realtime-api-evaluation) | Tier inherited; 4 native workers, 8 slots; four-way race | API Ultrafast; 4 workers/slots; four-way race | 1× |
+| [Rhythm](docs/rhythm.md) | Priority requested; 16 actors/slots; 200 ms cadence | API Ultrafast; up to 16 requests; 200 ms cadence | 1×; selected 17 s / 25 notes |
+| [Asterix](docs/release-guide.md#run) | Tier inherited; 1 native worker/slot; serial | **Subscription**, tier inherited; serial; actual wall timing | **5× slowdown**; selected 20 game seconds |
+| [Racing](docs/racing.md) | Ultrafast requested, subscription tier unverified; 3 native workers / 8 virtual slots; 600 ms cadence | API Ultrafast; up to 8 requests; 600 ms cadence | 1×; L1 |
+| [Badminton](docs/badminton.md) | **Default tier, Fast disabled**; serial | API Ultrafast; serial | **3× slowdown (S3)**; L1 |
+| [PingPong](docs/tabletennis.md) | Priority requested; 1 native worker / 4 virtual slots; 650 ms cadence | API Ultrafast; 4 workers/slots; 650 ms cadence; select `--source api` explicitly | 1×; L1 |
+
+“Tier inherited” means the runner does not pin a subscription tier. Requested subscription tiers do not establish the same latency or routing as the paid Ultrafast API. PingPong `eval` defaults to rules unless a model source is explicitly selected.
+
+The following are summaries of the **retained simulation timing profiles**, not measurements of today's subscription speed or predictions of a new realtime run. Units are **milliseconds**; `std` is the **population standard deviation (`ddof=0`)** of the retained samples, not a standard error. Timing endpoints differ between games.
+
+| Game / selected profile | Samples | Timing endpoint | Mean (ms) | Std (ms) |
+|---|---:|---|---:|---:|
+| [Touhou](profiles/touhou/profile-control-tracking-safe-intercept-v2-transport-v1.json) | 19 four-way cohorts | Earliest legal action in each cohort + apply overhead | 2638.9 | 372.6 |
+| [Rhythm](profiles/rhythm/selected-native-joint.json) | 85 joint rows | Legal action JSON ready (`api_rtt_s`) | 1432.7 | 282.2 |
+| [Asterix](profiles/asterix/latency_v16_actual_5x_512cap.json) | 536 valid calls | Capture to full completion | 1665.4 | 1373.2 |
+| [Racing](profiles/racing/profile.json) | 32 serial calls | Full response | 1472.1 | 378.6 |
+| [Badminton](profiles/badminton/conditional-api-10.json) | 10 serial calls | Legal action JSON ready (`latency_ms`) | 2070.7 | 323.8 |
+| [PingPong](profiles/tabletennis/historical-api-proxy.json) | 12 serial calls | Legal action JSON ready (`delays_s`) | 1326.8 | 552.9 |
+
+- **Profile scope matters.** Touhou's table pools 19 **modeled** four-way cohorts; the simulator samples within image-count strata. It is not a freshly measured concurrent profile. Racing's one-image direct-steering profile is a proxy for its current two-image lane goals. PingPong's earlier direct-action profile is a proxy for its current tactical policies. Asterix retains a historical V16 profile for V28; its 536 valid samples exclude 2 failed attempts and include a 25,537 ms slow response.
+- **Readiness and occupancy differ.** Rhythm resamples complete joint rows, including screenshot age, overhead and request occupancy; occupancy is 1634.0 ± 305.6 ms, and completion is 1577.3 ± 304.1 ms. Its selected content/timestamp bias is 50 ms. Badminton retains paired terminal timing of 2132.5 ± 332.3 ms; PingPong retains 1392.9 ± 561.5 ms. A readiness-only mean does not specify when a request slot becomes free.
+- **Record actual timing too.** Keep subscription computation time and virtual delivery time separately. For realtime, calculate latency mean/std from that run's receipts; the stored profiles above are not its observed latency. If the workload or observed API distribution changes, measure the exact prompt/image/transport condition under an explicit API budget and retain it as a new profile rather than silently replacing the comparison condition.
+- **Match the runtime.** Use the per-game dependency and renderer setup, the pinned RoboOlympics revision for native games, and the declared seeds. Native preparation deadlines, rendering and provider failures also affect outcomes. Badminton requires NVIDIA EGL; native games also need enough CPU capacity to meet planning deadlines. A matching model name or profile mean alone does not guarantee the demonstrated score. Preserve incomplete and failed runs alongside successes.
+
 ## Where replay fits
 
 Replay serves two purposes in the research process:

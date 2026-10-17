@@ -31,18 +31,26 @@ def run_episode(config, output):
     output.mkdir(parents=True, exist_ok=False)
     (output / "images").mkdir()
     write(output / "run.json", {key: value for key, value in config.items() if key != "api_key_file"})
+    simulated = config.get("simulation", False)
+    scheduler = None
+    if simulated:
+        from .simulation import DelayScheduler
+        scheduler = DelayScheduler(config["latency_profile"], config["delay_seed"],
+                                   config["slowdown"], config["capture_stride"])
     context = mp.get_context("spawn")
     commands, snapshots, observations, events = (context.Queue(), context.Queue(2), context.Queue(2), context.Queue())
     start, stop, render_stop = context.Event(), context.Event(), context.Event()
-    physics = context.Process(target=physics_main, args=(config, output, commands, snapshots, events, start, stop),
+    advance = context.Queue() if simulated else None
+    physics = context.Process(target=physics_main, args=(config, output, commands, snapshots, events, start, stop, advance),
                               name="tabletennis-physics")
     renderer = context.Process(target=render_main, args=(config, output, snapshots, observations, events, render_stop),
                                name="tabletennis-render")
     handlers = {sig: signal.getsignal(sig) for sig in (signal.SIGINT, signal.SIGTERM)}
     for sig in handlers:
         signal.signal(sig, lambda *_: stop.set())
-    workers = config.get("model_workers", 4) if config["source"] == "api" else 1
-    pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="tabletennis-model")
+    workers = config.get("model_workers", 4) if config["source"] == "api" or simulated else 1
+    native_workers = 1 if config["source"] == "sol" else workers
+    pool = ThreadPoolExecutor(max_workers=native_workers, thread_name_prefix="tabletennis-model")
     client = budget = player = None
     pending = {}
     max_inflight = superseded = 0
@@ -53,9 +61,11 @@ def run_episode(config, output):
     memory = ""
     history, control_costs, model_costs, served_tiers = [], [], [], []
     completion_times, observation_ages, used_workers = [], [], set()
+    simulated_delays, model_waits = [], []
     installed_legs = set()
     return_origins = {}
     final = None
+    controller_error = None
     started = time.monotonic()
     log_file = (output / "events.jsonl").open("w", buffering=1)
 
@@ -71,7 +81,7 @@ def run_episode(config, output):
         if stop.is_set():
             return {"cancelled_before_start": True}
         text, metadata = client.act(prompt, [image.read_bytes()], directory)
-        return {"text": text, **metadata}
+        return {"text": text, **metadata, "completed_mono": time.monotonic()}
 
     def receive(result, metadata):
         nonlocal invalid, accepted, memory, last_accepted_source, superseded
@@ -114,7 +124,7 @@ def run_episode(config, output):
         snapshot = {"state": public_data(packet["state"]), "policy": player.intent[0],
                     "tactics": player.context(packet["state"]), "memory": memory,
                     "history": recent, "slowdown": config["slowdown"],
-                    "clock": "initialization" if bootstrap else "actual_wall_"+config["source"]}
+                    "clock": "initialization" if bootstrap else config["clock"]}
         directory = output / "requests" / f"request-{calls:05d}"
         directory.mkdir(parents=True)
         write(directory / "snapshot.json", snapshot)
@@ -127,6 +137,9 @@ def run_episode(config, output):
             image.save(image_path)
         metadata = {"request_id": calls, "source_frame": frame, "bootstrap": bootstrap,
                     "issued_mono": time.monotonic()}
+        if scheduler is not None:
+            metadata.update(scheduler.schedule(frame))
+            simulated_delays.append(metadata["sampled_api_seconds"])
         task = pool.submit(invoke, format_prompt(snapshot), image_path, directory)
         pending[task] = metadata
         max_inflight = max(max_inflight, len(pending))
@@ -209,7 +222,7 @@ def run_episode(config, output):
         elif config["source"] == "sol":
             client = SubscriptionClient(output=output / "worker", output_schema=SCHEMA,
                                         system=(POLICY_ROOT / "system.txt").read_text(),
-                                        service_tier=config["subscription_service_tier"])
+                                        service_tier=config["subscription_service_tier"], auth_only_home=simulated)
         if config["source"] == "api":
             initial = observations.get(timeout=10)
             task = issue(initial, bootstrap=True)
@@ -230,7 +243,7 @@ def run_episode(config, output):
                 if final is None:
                     raise RuntimeError("Physics process exited without a final result")
             for task in list(pending):
-                if task.done():
+                if not simulated and task.done():
                     receive(task.result(), pending.pop(task))
             try:
                 packet = observations.get(timeout=.005)
@@ -238,7 +251,20 @@ def run_episode(config, output):
                 continue
             frame = packet["frame"]
             last_frame = frame
+            if simulated:
+                for task in sorted(list(pending), key=lambda t: (pending[t]["delivery_frame"], pending[t]["request_id"])):
+                    metadata = pending[task]
+                    if scheduler.due(metadata, frame) and not metadata.get("delivered"):
+                        before_wait = time.monotonic()
+                        receive(task.result(), metadata)
+                        metadata["delivered"] = True
+                        model_waits.append(time.monotonic() - before_wait)
+                    if metadata.get("delivered") and frame >= metadata["terminal_frame"]:
+                        log("simulated_terminal", request_id=metadata["request_id"], frame=frame)
+                        pending.pop(task)
             if frame < next_control:
+                if simulated:
+                    advance.put(frame + config["capture_stride"])
                 continue
             image = Path(packet["image"])
             png = image.read_bytes()
@@ -256,8 +282,13 @@ def run_episode(config, output):
                               "leg_key": key, "selection": selection, "service": player.serve_request})
             if client is not None and len(pending)<workers and frame>=next_request and calls<config["max_calls"]:
                 issue(packet)
+            if simulated:
+                advance.put(frame + config["capture_stride"])
         if final["error"] is not None:
             raise RuntimeError(final["error"])
+    except BaseException as exc:
+        controller_error = f"{type(exc).__name__}: {exc}"
+        raise
     finally:
         stop.set()
         start.set()
@@ -279,7 +310,7 @@ def run_episode(config, output):
             else:
                 result = task.result()
                 late.append({**metadata, "status": "cancelled_before_start" if result.get("cancelled_before_start") else "completed"})
-                if not result.get("cancelled_before_start"):
+                if not result.get("cancelled_before_start") and not metadata.get("delivered"):
                     model_costs.append(result["wall_seconds"])
                     if result.get("service_tier"):
                         served_tiers.append(result["service_tier"])
@@ -289,7 +320,8 @@ def run_episode(config, output):
             final = json.loads((output / "physics-summary.json").read_text())
         summary = {**(final or {"status": "failed"}), "source": config["source"], "calls": calls,
                    "accepted_intentions": accepted, "model_invalid": invalid,
-                   "model_workers": workers, "max_inflight_model_calls": max_inflight,
+                   "model_workers": native_workers, "virtual_capacity": workers if simulated else None,
+                   "max_inflight_model_calls": max_inflight,
                    "model_worker_ids": sorted(used_workers),
                    "reply_intervals_seconds": stats([b-a for a,b in zip(sorted(completion_times), sorted(completion_times)[1:])]),
                    "observation_age_game_seconds": stats(observation_ages),
@@ -298,8 +330,14 @@ def run_episode(config, output):
                    "return_policy_origins": list(return_origins.values()),
                    "initialization_wall_seconds": final["started_mono"]-started if final and final.get("started_mono") else None,
                    "model_latency_seconds": stats(model_costs), "served_service_tiers": served_tiers,
+                   "clock_mode": config["clock"], "real_time_api_acceptance": False if simulated else None,
+                   "sampled_api_latency_seconds": stats(simulated_delays),
+                   "subscription_wait_seconds": stats(model_waits),
+                   "latency_profile_sha256": config.get("latency_profile", {}).get("sha256"),
                    "control_compute_seconds": stats(control_costs),
                    "total_wall_seconds": time.monotonic() - started}
+        if controller_error is not None:
+            summary.update(status="failed", controller_error=controller_error)
         if budget is not None:
             summary["api_budget"] = budget.snapshot()
             write(output / "budget-after.json", summary["api_budget"])

@@ -1,0 +1,74 @@
+{
+  "scope": "Serial same-call paired clocks; exact existing game prompts/cameras, no realtime gameplay claim",
+  "model": "gpt-6.1-sol",
+  "service_tier": "ultrafast",
+  "concurrency": 1,
+  "attempts": 12,
+  "valid_paired_calls": 12,
+  "planned_calls": 12,
+  "usable_for_simulation": true,
+  "action_ready": {
+    "n": 12,
+    "min_s": 0.9289929579827003,
+    "mean_s": 1.326765797251331,
+    "p50_s": 1.1493768140062457,
+    "p95_s": 3.014958788000513
+  },
+  "full_response": {
+    "n": 12,
+    "min_s": 0.9559279339737259,
+    "mean_s": 1.392855629749344,
+    "p50_s": 1.1948047925106948,
+    "p95_s": 3.1164465119945817
+  },
+  "paired_tail_saved": {
+    "n": 12,
+    "min_s": 0.026934975991025567,
+    "mean_s": 0.06608983249801288,
+    "p50_s": 0.0529749620181974,
+    "p95_s": 0.14275868801632896
+  },
+  "cost_usd": 0.661872,
+  "source_digest": "fd280baf69e8de4856d86d1a24d96ce3cbfdddea9b6d301d78db43434e4c4bd1",
+  "variant": "geometry_stable_early_fast_feedback_executor_chunk",
+  "failed_or_unpaired_sequences": [],
+  "all_wire_completed_request_s": [
+    3.1164465119945817,
+    1.0924685630016029,
+    1.5012732000031974,
+    1.0753662349889055,
+    1.2166973540151957,
+    0.9559279339737259,
+    1.0684240070113447,
+    1.172912231006194,
+    1.7621134709916078,
+    1.0934102940082084,
+    1.3322957170021255,
+    1.3269320389954373
+  ],
+  "latency_clock": "first complete legal JSON action; terminal identity and usage validated before profile acceptance",
+  "delays_s": [
+    3.014958788000513,
+    1.0435859500139486,
+    1.44516128898249,
+    1.0258435030118562,
+    1.1668593409995083,
+    0.9289929579827003,
+    0.9501406950003002,
+    1.1318942870129831,
+    1.7296795459988061,
+    1.0353576220222749,
+    1.1895370289857965,
+    1.2591785590047948
+  ],
+  "p50_s": 1.1493768140062457,
+  "p95_s": 3.014958788000513,
+  "budget": {
+    "used_usd": 17.291697000000006,
+    "pending": 0,
+    "blocked": false
+  },
+  "profile_scope": "Historical direct-action streaming workload; proxy for current persistent tactical policies, not exact current workload or concurrency calibration",
+  "source_path": "research/updates/2026-10-16/ubuntu/pingpong/results/profile-stream-serial-v1/profile.json",
+  "conditional_on_valid_response": true
+}

@@ -9,8 +9,8 @@ from runtime.cli import ROOT, main
 class GameRoutingTests(unittest.TestCase):
     def test_game_routes_preserve_arguments_and_exit_status(self):
         for game, commands, script in (
-            ("pingpong", ("eval", "report"), "tabletennis.py"),
-            ("tabletennis", ("eval", "report"), "tabletennis.py"),
+            ("pingpong", ("simulate", "eval", "report"), "tabletennis.py"),
+            ("tabletennis", ("simulate", "eval", "report"), "tabletennis.py"),
             ("badminton", ("simulate", "eval", "preflight", "audit", "report", "diagnose", "profile"), "badminton.py"),
         ):
             for command in commands:

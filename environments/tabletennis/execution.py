@@ -296,7 +296,7 @@ def plan_contact(job):
             "worker_s": time.perf_counter() - started}
 
 
-def physics_main(config, output, commands, snapshots, events, start, stop):
+def physics_main(config, output, commands, snapshots, events, start, stop, advance=None):
     from .native import TableTennisEnvironment
     from core.sport import Refused, parse_action
 
@@ -315,6 +315,8 @@ def physics_main(config, output, commands, snapshots, events, start, stop):
     recorded_contacts = set()
     status, error = "stopped", None
     started = ended = None
+    allowed_frame = 0
+    gate_wait_seconds = 0.
     log = (output / "physics.jsonl").open("w", buffering=1)
     presentation = (output / "presentation.jsonl").open("w", buffering=256 * 1024)
 
@@ -347,6 +349,18 @@ def physics_main(config, output, commands, snapshots, events, start, stop):
         while env.frame < round(config["duration"] * 100) and not stop.is_set():
             if (output / "STOP").exists():
                 break
+            if advance is not None and env.frame >= allowed_frame:
+                before_gate = time.monotonic()
+                while not stop.is_set():
+                    try:
+                        allowed_frame = advance.get(timeout=.1)
+                        break
+                    except Empty:
+                        continue
+                gate_wait_seconds += time.monotonic() - before_gate
+                if stop.is_set():
+                    break
+                previous_tick = time.monotonic()
             tick = wait_tick(previous_tick, .01 * config["slowdown"])
             if env.frame:
                 tick_intervals.append(tick - previous_tick)
@@ -363,8 +377,12 @@ def physics_main(config, output, commands, snapshots, events, start, stop):
                     final_plan = task.result()
                     ready_plans.append((planning.pop(task), final_plan))
                     planning_costs.append(final_plan["worker_s"])
-            ready_plans.sort(key=lambda item: item[1]["install_frame"])
-            while ready_plans and env.frame >= ready_plans[0][1]["install_frame"]:
+            if advance is not None:
+                for ready_request, prepared_ready in ready_plans:
+                    ready_frame = ready_request.get("planning_frame", ready_request["source_frame"]) + math.ceil(prepared_ready["worker_s"] / (.01 * config["slowdown"]))
+                    prepared_ready["virtual_ready_frame"] = ready_frame
+            ready_plans.sort(key=lambda item: max(item[1]["install_frame"], item[1].get("virtual_ready_frame", 0)))
+            while ready_plans and env.frame >= max(ready_plans[0][1]["install_frame"], ready_plans[0][1].get("virtual_ready_frame", 0)):
                 ready_request, prepared_ready = ready_plans.pop(0)
                 before = time.perf_counter()
                 key = tuple(ready_request["leg_key"])
@@ -433,6 +451,7 @@ def physics_main(config, output, commands, snapshots, events, start, stop):
                            "prev2": (actions[-3] if len(actions) >= 3 else core.s._target).tolist(),
                            "source_frame": env.frame, "install_frame": env.frame + lead,
                            "contact_frame": request["contact_frame"], "command_in_force": copy.deepcopy(core.cmd)}
+                    request["planning_frame"] = env.frame
                     planning[pool.submit(plan_contact, job)] = request
                     emit("planning_started", source_frame=request["source_frame"], contact_frame=request["contact_frame"])
             before = time.perf_counter()
@@ -486,7 +505,9 @@ def physics_main(config, output, commands, snapshots, events, start, stop):
                    "plans_installed": installed, "plans_discarded": discarded,
                    "clock": {"requested_slowdown": config["slowdown"],
                              "catch_up_steps": sum(dt < .0095 * config["slowdown"] for dt in tick_intervals),
-                             "physics_waits_for_model": False, "physics_waits_for_preparation": False,
+                             "mode": "subscription_with_simulated_api_profile" if advance is not None else "actual_wall",
+                             "physics_waits_for_model": advance is not None, "physics_waits_for_preparation": False,
+                             "simulation_gate_wall_seconds": gate_wait_seconds,
                              "tick_intervals_seconds": stats(tick_intervals), "step_seconds": stats(step_costs),
                              "installation_seconds": stats(install_costs), "preparation_seconds": stats(planning_costs),
                              "initial_preparation_seconds": stats(initial_costs),
@@ -496,7 +517,19 @@ def physics_main(config, output, commands, snapshots, events, start, stop):
         events.put({"event": "physics_finished", "summary": summary})
         log.close()
         presentation.close()
-        pool.shutdown(wait=True, cancel_futures=True)
+        if advance is not None:
+            # Python 3.11 has no terminate_workers(). Bound cleanup of robot-only
+            # jobs whose contact deadlines or episode have already ended.
+            processes = list((pool._processes or {}).values())
+            pool.shutdown(wait=False, cancel_futures=True)
+            for process in processes:
+                process.join(timeout=.5)
+            for process in processes:
+                if process.is_alive():
+                    process.terminate()
+                    process.join(timeout=2)
+        else:
+            pool.shutdown(wait=True, cancel_futures=True)
         if env is not None:
             env.close()
 

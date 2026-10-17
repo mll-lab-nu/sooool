@@ -165,6 +165,9 @@ strategy selection with explicit key-file and cumulative-budget arguments. The
 camera-only rule controller serves and executes joint motion; physics does not
 wait for either the API or the two native planning workers. `sol eval pingpong`
 and `sol report pingpong` route to this implementation.
+`sol simulate pingpong` makes live subscription decisions with a retained historical
+API timing proxy and a gated virtual clock; see the setup guide for its workload
+limits and separate subscription/native-planning timing.
 
 At L1/1x, seed 11 completed 5:1 (4/4 legal serves, 6/7 returns) and seed 12
 completed 3:5 (3/4 serves, 5/9 returns). The complete dual-view video includes

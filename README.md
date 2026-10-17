@@ -112,7 +112,7 @@ For Touhou and Rhythm, the three commands divide the work like this:
 | `sol simulate` | Play a new game. Use measured delays to decide when each answer can affect the game; virtual time can wait for the model. | ChatGPT subscription calls and a latency profile |
 | `sol eval` | Play with a continuously running game clock. The actual time taken by each answer affects the outcome. | Paid API calls with a budget cap |
 
-Asterix uses subscription calls for real-time evaluation too. The other games have separate commands and dependencies in their [setup guides](docs/release-guide.md).
+Asterix uses subscription calls for real-time evaluation too. PingPong also supports `sol simulate pingpong`, using fresh subscription decisions with a clearly labeled historical API timing proxy. See its [simulation setup and limits](docs/tabletennis.md#subscription-simulation). The other games have separate commands and dependencies in their [setup guides](docs/release-guide.md).
 
 
 ### 1. Measure the delay (`sol profile`)

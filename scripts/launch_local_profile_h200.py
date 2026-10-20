@@ -17,10 +17,14 @@ def main():
     p.add_argument("--ssh-public-key", type=Path, required=True)
     p.add_argument("--image", required=True, help="Verified immutable accelerator OS image name")
     p.add_argument("--name", default="sooool-deepseek-1017-h200")
-    p.add_argument("--project", default="thematic-axle-508622-j7")
+    p.add_argument("--project", required=True, help="Explicit GCP experiment project ID")
     p.add_argument("--zone", default="us-central1-b")
+    p.add_argument("--capacity-wait-seconds", type=int, default=600)
+    p.add_argument("--provisioning-model", choices=("FLEX_START", "SPOT"), default="FLEX_START")
     p.add_argument("--execute", action="store_true")
     a = p.parse_args()
+    if a.capacity_wait_seconds != 0 and not 90 <= a.capacity_wait_seconds <= 7200:
+        p.error("Capacity wait must be zero or 90..7200 seconds")
     rows = read_corpus(a.corpus)
     if {r["game"] for r in rows} != GAMES:
         raise ValueError("All seven tasks must be prepared before renting GPUs")
@@ -33,7 +37,7 @@ def main():
         "gcloud", "compute", "instances", "create", a.name,
         "--project="+a.project, "--zone="+a.zone,
         "--machine-type=a3-ultragpu-8g",
-        "--provisioning-model=FLEX_START", "--request-valid-for-duration=600s",
+        "--provisioning-model="+a.provisioning_model,
         "--max-run-duration=14400s", "--instance-termination-action=DELETE",
         "--maintenance-policy=TERMINATE", "--no-restart-on-failure",
         "--image="+a.image, "--image-project=ubuntu-os-accelerator-images",
@@ -46,10 +50,16 @@ def main():
         +",ssh-keys="+str(key_file),
         "--format=json", "--quiet",
     ]
-    print(json.dumps({"command": command, "max_run_seconds": 14400,
-                      "gpu_cost_estimate_usd": 169.60, "extra_disk_network_costs": True}, indent=2))
+    if a.provisioning_model == "FLEX_START":
+        command.append(f"--request-valid-for-duration={a.capacity_wait_seconds}s")
+    plan = {"command": command, "max_run_seconds": 14400,
+            "us_central1_flex_start_4h_estimate_usd": 169.60,
+            "extra_disk_network_costs": True,
+            "pricing_note": "Estimate is for the verified Iowa Flex-start rate, not a quote for other modes or regions."}
     if a.execute:
-        subprocess.run(command, check=True)
+        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, text=True)
+        plan["instances"] = json.loads(result.stdout)
+    print(json.dumps(plan, indent=2))
 
 
 if __name__ == "__main__":

@@ -74,6 +74,13 @@ termination action DELETE and auto-deleted 1 TB boot disk. Installation and mode
 download consume part of that runtime. No service account is attached. The model
 server listens only on loopback; SSH uses an instance-scoped public key.
 
+For sequential cross-zone capacity checks, `--capacity-wait-seconds 0` requests
+immediate Flex-start capacity. Confirm a failed request left no instance before
+trying another zone. `--provisioning-model SPOT` retains the runtime and deletion
+limits but permits early preemption and uses different, variable pricing.
+The checked Iowa Spot quote was approximately $49/hour ($196/four hours).
+Stop all further creation attempts immediately after one successful allocation.
+
 Verify the actual cloud scheduling fields after creation. Copy results and
 serving logs off the disposable VM before expiry. GPU cost estimate at the
 checked $42.40/hour rate is $169.60 for the full four hours, plus disk/network;

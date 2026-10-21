@@ -329,14 +329,14 @@ wheels = [
 
 [[package]]
 name = "latency-sensitive-bench"
-version = "0.1.1"
-source = { path = "vendor/latency_sensitive_bench-0.1.1-py3-none-any.whl" }
+version = "0.1.2"
+source = { path = "vendor/latency_sensitive_bench-0.1.2-py3-none-any.whl" }
 dependencies = [
     { name = "numpy" },
     { name = "pyyaml" },
 ]
 wheels = [
-    { filename = "latency_sensitive_bench-0.1.1-py3-none-any.whl", hash = "sha256:8f05508f5e86126e0b0cfef97bfebfa51e89e35f9d8cbf5cd4d1d6119c46a976" },
+    { filename = "latency_sensitive_bench-0.1.2-py3-none-any.whl", hash = "sha256:497d1c59bae873da2e57fd2d137f6b824b5d73b268861380a00a61ae724c664c" },
 ]
 
 [package.metadata]
@@ -714,7 +714,7 @@ requires-dist = [
     { name = "gymnasium", specifier = "==1.2.3" },
     { name = "httpx", specifier = "==0.28.1" },
     { name = "jsonschema", specifier = ">=4.25,<5" },
-    { name = "latency-sensitive-bench", path = "vendor/latency_sensitive_bench-0.1.1-py3-none-any.whl" },
+    { name = "latency-sensitive-bench", path = "vendor/latency_sensitive_bench-0.1.2-py3-none-any.whl" },
     { name = "numpy", specifier = "==1.26.4" },
     { name = "pillow", specifier = "==12.1.1" },
     { name = "playwright", specifier = "==1.58.0" },

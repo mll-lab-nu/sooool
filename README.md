@@ -145,8 +145,11 @@ Evaluators may inspect game state to score outcomes. [Observation boundaries](do
 
 ## Quick start
 
+While the benchmark repository is private, install GitHub CLI and run
+`gh auth login` before downloading the framework wheel. Public downloads use curl.
+
 ```bash
-git submodule update --init -- vendor/latency-aware-agents
+bash scripts/fetch-latency.sh
 uv sync --locked --python 3.12
 uv run playwright install --with-deps chromium
 codex login

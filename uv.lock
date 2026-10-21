@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.10, <3.13"
 resolution-markers = [
     "python_full_version >= '3.11'",
@@ -328,6 +328,58 @@ wheels = [
 ]
 
 [[package]]
+name = "latency-sensitive-bench"
+version = "0.1.1"
+source = { path = "vendor/latency_sensitive_bench-0.1.1-py3-none-any.whl" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pyyaml" },
+]
+wheels = [
+    { filename = "latency_sensitive_bench-0.1.1-py3-none-any.whl", hash = "sha256:8f05508f5e86126e0b0cfef97bfebfa51e89e35f9d8cbf5cd4d1d6119c46a976" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "accelerate", marker = "extra == 'starvla'", specifier = "==1.5.2" },
+    { name = "ale-py", marker = "extra == 'atari'", specifier = "==0.8.1" },
+    { name = "autorom", marker = "extra == 'atari'", specifier = "==0.6.1" },
+    { name = "av", marker = "extra == 'data'", specifier = "==15.1.0" },
+    { name = "datasets", marker = "extra == 'data'", specifier = "==4.8.5" },
+    { name = "dm-control", marker = "extra == 'sonic'", specifier = "==1.0.28" },
+    { name = "draccus", marker = "extra == 'starvla'", specifier = ">=0.10.0,<0.12" },
+    { name = "einops", marker = "extra == 'starvla'", specifier = ">=0.8.0,<0.9" },
+    { name = "gymnasium", marker = "extra == 'runtime'", specifier = "==0.29.1" },
+    { name = "gymnasium", extras = ["atari"], marker = "extra == 'atari'", specifier = "==0.29.1" },
+    { name = "gymnasium", extras = ["box2d"], marker = "extra == 'box2d'", specifier = "==0.29.1" },
+    { name = "huggingface-hub", marker = "extra == 'runtime'", specifier = ">=0.34.0,<1.0" },
+    { name = "jsonlines", marker = "extra == 'data'", specifier = "==4.0.0" },
+    { name = "matplotlib", marker = "extra == 'analysis'", specifier = "==3.10.9" },
+    { name = "mujoco", marker = "extra == 'mujoco'", specifier = "==3.3.0" },
+    { name = "mujoco", marker = "extra == 'sonic'", specifier = "==3.3.0" },
+    { name = "ninja", marker = "extra == 'training'", specifier = "==1.13.0" },
+    { name = "numpy", specifier = "==1.26.4" },
+    { name = "opencv-python-headless", marker = "extra == 'runtime'", specifier = "==4.10.0.84" },
+    { name = "optree", marker = "extra == 'runtime'", specifier = "==0.19.1" },
+    { name = "packaging", marker = "extra == 'training'", specifier = ">=24.2" },
+    { name = "pandas", marker = "extra == 'data'", specifier = "==2.3.3" },
+    { name = "pillow", marker = "extra == 'runtime'", specifier = "==12.1.1" },
+    { name = "pyarrow", marker = "extra == 'data'", specifier = "==24.0.0" },
+    { name = "pygame", marker = "extra == 'runtime'", specifier = "==2.6.1" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = "==9.0.3" },
+    { name = "pyyaml", specifier = "==6.0.3" },
+    { name = "safetensors", marker = "extra == 'starvla'", specifier = ">=0.4.3" },
+    { name = "scipy", marker = "extra == 'runtime'", specifier = "==1.15.3" },
+    { name = "stable-baselines3", marker = "extra == 'training'", specifier = "==2.8.0" },
+    { name = "torch", marker = "extra == 'training'", specifier = "==2.11.0" },
+    { name = "torchvision", marker = "extra == 'training'", specifier = "==0.26.0" },
+    { name = "tqdm", marker = "extra == 'runtime'", specifier = "==4.67.3" },
+    { name = "vizdoom", marker = "extra == 'vizdoom'", specifier = "==1.3.0" },
+    { name = "wandb", marker = "extra == 'runtime'", specifier = "==0.26.1" },
+]
+provides-extras = ["runtime", "data", "training", "starvla", "analysis", "dev", "mujoco", "atari", "vizdoom", "box2d", "sonic"]
+
+[[package]]
 name = "numpy"
 version = "1.26.4"
 source = { registry = "https://pypi.org/simple" }
@@ -646,6 +698,7 @@ dependencies = [
     { name = "gymnasium" },
     { name = "httpx" },
     { name = "jsonschema" },
+    { name = "latency-sensitive-bench" },
     { name = "numpy" },
     { name = "pillow" },
     { name = "playwright" },
@@ -661,6 +714,7 @@ requires-dist = [
     { name = "gymnasium", specifier = "==1.2.3" },
     { name = "httpx", specifier = "==0.28.1" },
     { name = "jsonschema", specifier = ">=4.25,<5" },
+    { name = "latency-sensitive-bench", path = "vendor/latency_sensitive_bench-0.1.1-py3-none-any.whl" },
     { name = "numpy", specifier = "==1.26.4" },
     { name = "pillow", specifier = "==12.1.1" },
     { name = "playwright", specifier = "==1.58.0" },

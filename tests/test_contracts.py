@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
-sys.path[:0]=[str(ROOT/'vendor/latency-aware-agents'),str(ROOT/'environments/touhou'),str(ROOT/'environments/asterix')]
+sys.path[:0]=[str(ROOT/'environments/touhou'),str(ROOT/'environments/asterix')]
 from runtime.subscription import retain_input
 from latency_bench.latency.inverse_cdf import sample_inverse_cdf
 from latency_bench.latency.samplers import build_sampler

@@ -8,7 +8,7 @@ API observations are 200ms apart with at most 16 requests in flight.
 ## Run
 
 ```bash
-git submodule update --init -- vendor/latency-aware-agents
+bash scripts/fetch-latency.sh
 uv sync --locked --python 3.12
 uv run playwright install --with-deps chromium
 codex login

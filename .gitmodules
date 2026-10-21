@@ -1,3 +1,0 @@
-[submodule "vendor/latency-aware-agents"]
-	path = vendor/latency-aware-agents
-	url = https://github.com/mll-lab-nu/latency-aware-agents.git

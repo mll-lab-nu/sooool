@@ -6,7 +6,7 @@ name = "sol-realtime"
 version = "0.1.0"
 description = "Frozen visual SOL policies, calibrated virtual timing, and reproducible game evidence"
 requires-python = ">=3.10,<3.13"
-dependencies = ["playwright==1.58.0", "httpx==0.28.1", "Pillow==12.1.1", "numpy==1.26.4", "gymnasium==1.2.3", "ale-py==0.11.2", "PyYAML==6.0.3", "requests==2.32.5", "jsonschema>=4.25,<5", "dfjk-rhythm-gym", "touhou-kaguya-gym"]
+dependencies = ["latency-sensitive-bench==0.1.2", "playwright==1.58.0", "httpx==0.28.1", "Pillow==12.1.1", "numpy==1.26.4", "gymnasium==1.2.3", "ale-py==0.11.2", "PyYAML==6.0.3", "requests==2.32.5", "jsonschema>=4.25,<5", "dfjk-rhythm-gym", "touhou-kaguya-gym"]
 [project.scripts]
 sol = "runtime.cli:main"
 [tool.setuptools]
@@ -15,5 +15,6 @@ packages = ["runtime"]
 [tool.uv.workspace]
 members = ["environments/rhythm", "environments/touhou"]
 [tool.uv.sources]
+latency-sensitive-bench = { path = "vendor/latency_sensitive_bench-0.1.2-py3-none-any.whl" }
 dfjk-rhythm-gym = { workspace = true }
 touhou-kaguya-gym = { workspace = true }

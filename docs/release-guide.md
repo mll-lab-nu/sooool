@@ -13,7 +13,7 @@ The selected Asterix demo uses **V28, one request at a time, direct unchanged ac
 Linux, Python 3.10–3.12, and a Codex CLI signed in with a ChatGPT subscription supporting the exact model are required. The tested native CLI is 0.162.1. `SOL_CODEX_BIN` selects a standalone executable; `SOL_CODEX_HOME` selects an existing login directory. Credentials are never copied into the repository, and there is no paid API fallback.
 
 ```bash
-git submodule update --init -- vendor/latency-aware-agents
+bash scripts/fetch-latency.sh
 uv sync --locked --python 3.12
 codex login
 uv run sol doctor --game asterix --auth
@@ -76,7 +76,7 @@ The selected Touhou/Kaguya case uses the same research loop. The selected contro
 Linux, Python 3.10–3.12 and Chromium-compatible dependencies are required. Install Noto CJK fonts if Japanese/Chinese glyphs are unavailable.
 
 ```bash
-git submodule update --init -- vendor/latency-aware-agents
+bash scripts/fetch-latency.sh
 uv sync --locked --python 3.12
 uv run playwright install --with-deps chromium
 uv run sol doctor --game touhou

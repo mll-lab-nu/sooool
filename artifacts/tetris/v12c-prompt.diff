@@ -1,0 +1,15 @@
+--- policies/tetris/v11-short/prompt.txt	2026-10-24 11:42:01.286633078 -0700
++++ policies/tetris/v12c-tradeoff/prompt.txt	2026-10-24 12:20:32.317563999 -0700
+@@ -13,7 +13,11 @@
+ - Holes are the main thing to avoid: an empty cell under a filled one stays unusable until every row above it is cleared.
+   Before answering, compare several columns and rotations. If ANY spot lets every column under the piece rest
+   directly on the stack (no empty cell left underneath), choose such a spot, even if it is one or two rows higher.
+-  Accept a gap only when no gap-free spot exists anywhere.
++  Accept a gap only when no gap-free spot exists anywhere, with one exception: a placement that completes two or
++  more rows at once is worth one hole, and takes priority over a gap-free spot that completes nothing.
++- Always check the deepest well first: if a column is three or more rows lower than its neighbours, count how many
++  rows a vertical piece dropped into it would complete. Two or more: drop it there now, even with one hole. Do not
++  save the well for a later I piece when the stack beside it is already five rows or higher.
+ Gap-free fits. Column height = number of filled rows from the floor up to the top filled cell of that column
+ (0 if empty). A piece sits with no gap only when the columns it covers have exactly these heights, where h is any number:
+   I rot0: needs column heights (h, h, h, h) left to right

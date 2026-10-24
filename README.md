@@ -22,7 +22,8 @@ Sooool! uses an autoresearch loop to get GPT-6 Sol to play real-time games, with
 <td width="50%" align="center"><a href="assets/gameplay/badminton.mp4"><img src="assets/gameplay/badminton.gif" alt="The coding agent playing badminton: opening serve and rally, with both camera views and original English decision summaries" width="390"></a><br><b>Badminton</b> · Live API run</td>
 </tr>
 <tr>
-<td colspan="2" align="center"><a href="assets/pcba/timed-v2-s0-ls0-showcase.mp4"><img src="assets/gameplay/pcba.gif" alt="GPT-6.1 Sol driving a robot PCBA test cell: a board is clamped, tested FAIL and sorted, with the executing reply's raw JSON output" width="390"></a><br><b>PCBA test cell</b> · Subscription simulation (virtual clock) · <a href="#pcba-test-cell-belt-to-magazine">task flow and metrics</a></td>
+<td width="50%" align="center"><img src="assets/tetris/claude-eval-2x-level5.gif" alt="Claude Opus playing Tetris at start level 5 on the actual clock beside the true-board rules baseline: one placement per piece from three timestamped screenshots, key-script execution; deterministic replay rendering" width="390"><br><b>Tetris</b> · Actual-clock replay rendering beside the rules baseline</td>
+<td width="50%" align="center"><a href="assets/pcba/timed-v2-s0-ls0-showcase.mp4"><img src="assets/gameplay/pcba.gif" alt="GPT-6.1 Sol driving a robot PCBA test cell: a board is clamped, tested FAIL and sorted, with the executing reply's raw JSON output" width="390"></a><br><b>PCBA test cell</b> · Subscription simulation (virtual clock) · <a href="#pcba-test-cell-belt-to-magazine">task flow and metrics</a></td>
 </tr>
 </table>
 
@@ -47,6 +48,7 @@ We computed the latency profiles below; timings may vary across API setups, and 
 | [Rhythm](profiles/rhythm/selected-native-joint.json) | 85 timing samples | Action ready | 1432.7 | 282.2 |
 | [Racing (proxy)](profiles/racing/profile.json) | 32 serial calls | Response complete | 1472.1 | 378.6 |
 | [PCBA (modeled)](profiles/pcba/ultrafast-modeled-v1.json) | 155 modeled replies | Capture to reply | 3871.9 | 831.3 |
+| [Tetris (Claude Opus, subscription CLI)](profiles/tetris/claude-opus-low-serial-v0.json) | 68 serial calls | Capture to apply | 6151.2 | 1254.0 |
 
 ### Build the simulator
 
@@ -58,7 +60,7 @@ This lets Codex compare strategies under the same delay conditions, even when th
 
 Fix the selected strategy and run it with actual response times. The game keeps running while the agent responds: a three-second response means the game also moves forward for three seconds.
 
-These commands cover Touhou, Rhythm, and Asterix; `sol profile` is available for Touhou and Rhythm:
+These commands cover Touhou, Rhythm, Asterix and Tetris; `sol profile` is available for Touhou and Rhythm:
 
 | Command | What happens | What it uses |
 |---|---|---|
@@ -102,11 +104,12 @@ An answer can take seconds. Sending requests while earlier ones are still waitin
 | **Touhou** | **Four requests per observation**; next group after the selected move finishes and slots are available. | Use the first valid answer; the other answers for that observation cannot replace it. |
 | **Asterix** | **One request at a time.** Observe again after the previous reply. | Hold the chosen direction until a new answer replaces it. |
 | **Rhythm** | Try a new screenshot **every 0.2 seconds**, with **up to 16 requests waiting**. Skip sending when full. | Execute the model's tap times, skip expired taps, and prevent duplicate presses using action IDs. |
+| **Tetris** | **One request at a time**, captured at the first one-second observation tick after the previous reply was executed. | Press the key script for the answered placement; discard a reply whose piece has already locked. |
 | **PCBA** | **Two staggered requests**: capture about one measured reply latency before the committed chunk ends; hold while a committed test result is still pending. | Run a reply only after its parent chunk ends and its declared start pose and sensor guards match; the newest valid reply wins, superseded ones are dropped. |
 
 More requests also mean more calls, cost, and potentially outdated answers. Asterix's serial setup followed limited trials in which overlapping requests appeared to encourage repeated movement. [Request ordering, capacity, and experiment details](docs/latency-aware-learning.md).
 
-A **recipe** is a JSON file selecting a policy, latency profile, and run settings. See the selected recipes: [Touhou simulation](recipes/touhou.json), [Touhou live run](recipes/touhou-realtime.json), [Rhythm](recipes/rhythm.json), and [Asterix](recipes/asterix.json).
+A **recipe** is a JSON file selecting a policy, latency profile, and run settings. See the selected recipes: [Touhou simulation](recipes/touhou.json), [Touhou live run](recipes/touhou-realtime.json), [Rhythm](recipes/rhythm.json), [Asterix](recipes/asterix.json), and [Tetris](recipes/tetris.json).
 
 ### Action example
 
@@ -129,6 +132,7 @@ The coding agent chooses button presses in screen-based games and tactical goals
 | [Touhou / Kaguya](docs/touhou-research-record.md) | Recent screenshots, frame times, prior controls | Direction, shooting, focus, bombs, duration | Apply chosen buttons for the specified duration |
 | [PingPong](docs/tabletennis.md) | Two camera views, feedback, opponent estimate | One of four return-placement plans | Track the ball, serve, plan contact, execute joint motion |
 | [Asterix](docs/asterix-autoresearch.md) | Three timestamped screenshots, action history | Joystick direction | Hold direction until replaced |
+| [Tetris](docs/tetris.md) | Three timestamped plain game screenshots, applied-placement history | One placement: rotation, column | Press the key script for that placement; discard stale answers |
 | [Badminton](docs/badminton.md) | Recent frames from two cameras, public feedback | Conditional shot goals, recovery position, goal duration | Plan contact and swing; execute stroke |
 | [Rhythm](docs/rhythm.md) | Screenshot, public clock, pending taps | DFJK keys, absolute tap times | Queue and execute specified taps |
 | [Racing](docs/racing.md) | Front-camera views, telemetry, visual road measurements | Speed, lane offset, lookahead | Steer toward goal, limit speed through bends |
@@ -342,6 +346,7 @@ uv run sol figures pcba --source runs/pcba-sim-new --output assets/pcba/steps
 | **Touhou / Kaguya** | Our simplified practice environment | [Touhou: Imperishable Night](https://www16.big.or.jp/~zun/html/th08top.html); original-game presentation assets |
 | **PingPong** | Upstream environment; our agent interface and controller adaptations | [Embodied Olympics Exam](https://olympics.embodied-first-exam.ai/) |
 | **Asterix** | Atari game through ALE; our agent runner | [Arcade Learning Environment](https://ale.farama.org/environments/asterix/) |
+| **Tetris** | Our deterministic single-player engine (classic one-piece preview); our agent runner | [Tetris Guideline](https://tetris.wiki/Tetris_Guideline) rules; original game by Alexey Pajitnov |
 | **Badminton** | Upstream environment; our agent interface and controller | [Embodied Olympics Exam](https://olympics.embodied-first-exam.ai/) |
 | **Rhythm** | Our four-lane browser game | Inspired by [Rhythm Master](https://apps.apple.com/cn/app/%E8%8A%82%E5%A5%8F%E5%A4%A7%E5%B8%88/id493901993) |
 | **Racing** | Upstream environment; our agent interface and steering controller | [Embodied Olympics Exam](https://olympics.embodied-first-exam.ai/) |
@@ -370,7 +375,7 @@ uv run sol eval touhou \
   --output runs/touhou-api-001
 ```
 
-Game setup: [Touhou](docs/realtime.md) · [PingPong](docs/tabletennis.md) · [Asterix](docs/release-guide.md) · [Badminton](docs/badminton.md) · [Rhythm](docs/rhythm.md) · [Racing](docs/racing.md) · [PCBA](docs/pcba.md)
+Game setup: [Touhou](docs/realtime.md) · [PingPong](docs/tabletennis.md) · [Asterix](docs/release-guide.md) · [Tetris](docs/tetris.md) · [Badminton](docs/badminton.md) · [Rhythm](docs/rhythm.md) · [Racing](docs/racing.md) · [PCBA](docs/pcba.md)
 
 Prepare each game with `uv run sol env setup <game>`. Registered experiment runners use `sol simulate` or `sol eval`. PvZ and Red Alert currently provide setup only. [Environment management](docs/environments.md).
 

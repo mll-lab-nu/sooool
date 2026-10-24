@@ -40,7 +40,7 @@ compilation retains the environment job's separate 60-minute limit.
 Touhou tests use a frontend bound to `127.0.0.1` on an available port. Rhythm tests
 load its real page, capture pixels, execute a literal key, and close the browser
 under virtual and native clocks. Asterix replays saved actions; this remains replay
-evidence. PCBA runs its CPU tests and registered no-model smoke command. CI does not
+evidence. Tetris runs engine, executor, rules-baseline and zero-model replay contracts without model calls. PCBA runs its CPU tests and registered no-model smoke command. CI does not
 apply strict wall-clock performance thresholds to shared runners.
 
 Racing, Badminton and TableTennis installation and CPU contracts run automatically.

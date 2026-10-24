@@ -1,0 +1,47 @@
+{
+  "policy": "v11-short",
+  "profile": "profiles/tetris/claude-opus-low-serial-v0.json",
+  "system": "policies/tetris/v11-short/system.txt",
+  "task_prefix": "policies/tetris/v11-short/task-prefix.txt",
+  "prompt": "policies/tetris/v11-short/prompt.txt",
+  "output_instructions": "policies/tetris/v11-short/output-format.txt",
+  "memory": "policies/tetris/v11-short/memory.md",
+  "output_format": "rot_col_reason",
+  "claude": {
+    "model": "opus",
+    "effort": "low"
+  },
+  "subscription": {
+    "effort": "low",
+    "service_tier": "priority",
+    "prestart": false
+  },
+  "args": {
+    "episodes": [
+      {
+        "seed": 0,
+        "level": 1,
+        "prefix": 20
+      },
+      {
+        "seed": 1,
+        "level": 3,
+        "prefix": 20
+      },
+      {
+        "seed": 2,
+        "level": 5,
+        "prefix": 20
+      }
+    ],
+    "duration": 60,
+    "slowdown": 1,
+    "requests_in_flight": 1,
+    "latency_seed_offset": 91,
+    "quota_stop_percent": 80,
+    "note": "Normal-speed comparison condition; otherwise identical to recipes/tetris.json.",
+    "controller": "key_script",
+    "observation_stride_frames": 60,
+    "observation_window": 9
+  }
+}

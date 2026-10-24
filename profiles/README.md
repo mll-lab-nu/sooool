@@ -9,6 +9,7 @@ Default simulation recipes select one exact profile each; older profiles are arc
 | Rhythm `selected-native-joint.json` | 85 completed selected-v21 API rows: action readiness, frame age, transport overhead and terminal occupancy | Whole-row empirical resampling; continuous virtual seconds; sampled future delays hidden |
 | Touhou `profile-control-tracking-safe-intercept-v2-transport-v1.json` | 19 modeled four-candidate readiness/terminal vectors, transporting selected-task serial timing into historical race cohorts | Whole-vector resampling, at 60 visual-clock frames/s; terminal slots remain occupied |
 | Asterix `latency_v16_actual_5x_512cap.json` | 536 valid capture-to-complete delays from the historical V16 API campaign | Empirical IID, `ceil(seconds × 12)` raw frames at 5× slowdown; long tails retained |
+| Tetris `claude-opus-low-serial-v0.json` | 68 capture-to-apply wall seconds from a serial real-clock Claude Opus (low effort) run of an earlier, longer prompt of the policy lineage (mean 6.15 s, median 5.93 s) | Empirical IID, `ceil(seconds / slowdown × 60)` frames; a new profile is the wall times of a serial `sol eval tetris` run |
 
 Asterix's earlier 1/8-speed `sol-ultrafast-v*` directories include `profile.json`, fitted quantile distribution and temporal burst companions. Their original interpolated inverse-CDF sampler is retained under `vendor/`; they are not silently selected for V28 5× simulation.
 

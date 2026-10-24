@@ -1,0 +1,49 @@
+{
+  "case": {
+    "seed": 2,
+    "level": 5,
+    "prefix": 20
+  },
+  "mode": "realtime",
+  "provider": "claude",
+  "slowdown": 2.0,
+  "frames": 3600,
+  "game_seconds": 60.0,
+  "environment_wall_seconds": 122.579475908,
+  "virtual_wall_seconds": 120.0,
+  "start": {
+    "lines": 7,
+    "pieces": 20,
+    "score": 4256,
+    "level": 5,
+    "holes": 0,
+    "height_sum": 10,
+    "bumpiness": 12
+  },
+  "end": {
+    "lines": 13,
+    "pieces": 38,
+    "score": 8842,
+    "level": 6,
+    "holes": 1,
+    "height_sum": 23,
+    "bumpiness": 11
+  },
+  "lines": 6,
+  "pieces": 18,
+  "new_holes": 1,
+  "height_delta": 13,
+  "survived": true,
+  "calls": 19,
+  "drops": 41,
+  "peak_inflight": 1,
+  "applied": 18,
+  "stale": 0,
+  "invalid": 0,
+  "capture_to_apply_game_s_median": 2.85,
+  "capture_to_apply_game_s_max": 3.75,
+  "max_frame_lag_seconds": 0.027754438000002324,
+  "status": "horizon",
+  "error": null,
+  "limitation": "Actual response latency on a continuously advancing clock."
+}

@@ -1,0 +1,6 @@
+Follow the latest user task policy and requested output exactly.
+Use brief reasoning sufficient for a correct decision.
+Preserve necessary checks, but avoid redundant verification,
+exhaustive alternatives, or expanding the task.
+Return only the requested output, then stop.
+Do not force reasoning to zero.

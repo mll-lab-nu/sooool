@@ -4,7 +4,7 @@ An evaluation record connects a hypothesis to a frozen configuration, model outp
 
 ## Shared run records
 
-New Asterix, Touhou, Rhythm, Racing, Badminton, TableTennis and PCBA experiment
+New Asterix, Tetris, Touhou, Rhythm, Racing, Badminton, TableTennis and PCBA experiment
 runs write `evaluation-record.json` with schema version 2. The shared fields are
 `record_id`, `game`, `command`, `provider`, `clock`, `mode`, `status`, `summary` and
 `evidence`. `provider` identifies actual subscription, API or rules decisions.

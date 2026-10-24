@@ -38,5 +38,8 @@ def freeze(game,recipe,out, mode="subscription_with_simulated_profile"):
             'real_time_subscription':'native app-server subscription; continuously advancing wall clock',
             'realtime_api':'streamed paid API; continuously advancing wall clock',
             'serial_api_profile':'strictly serial paid API on retained inputs; no gameplay actions',
+            'claude_with_simulated_profile':'stateless Claude Code CLI; sampled virtual timing',
+            'real_time_claude':'stateless Claude Code CLI; continuously advancing wall clock',
+            'rules_baseline_with_simulated_profile':'true-board rules heuristic (evaluator-side comparison); sampled virtual timing',
         }.get(mode,'Transport is declared in the recipe and transport-specific run records'),
         'created_at_unix':time.time()},indent=2))

@@ -55,7 +55,7 @@ class Records(unittest.TestCase):
 
     def test_registration_is_idempotent_and_decisions_append_for_every_game(self):
         providers = {'asterix': 'subscription', 'touhou': 'api', 'rhythm': 'api', 'racing': 'api',
-                     'badminton': 'api', 'tabletennis': 'rules', 'pcba': 'subscription'}
+                     'badminton': 'api', 'tabletennis': 'rules', 'pcba': 'subscription', 'tetris': 'claude'}
         for game, provider in providers.items():
             with self.subTest(game=game), tempfile.TemporaryDirectory() as directory:
                 base = Path(directory)

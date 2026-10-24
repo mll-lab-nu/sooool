@@ -100,6 +100,14 @@ used verified upstream archives through a loopback mirror after a CDN interrupti
 These checks made no subscription or paid API model calls. External game build
 scripts and assets were not rebuilt for this launcher migration.
 
+## Tetris environment (2026-10-24)
+
+Selected `v11-short` run with `sol eval tetris` (actual clock, 2× slowdown, three 60-second episodes, 57 serial
+Claude Code CLI calls), plus simulation, rules baseline and 1× comparison, all registered in
+[`artifacts/tetris/evaluations.jsonl`](../artifacts/tetris/evaluations.jsonl). The selected run replays from the
+repository copy with zero model calls (Python 3.12.3, Pillow 12.1.1, Claude Code CLI 2.1.310). 17 offline tests
+and the shared/environment CI checks pass; no GPT runs were made. [Details](tetris.md).
+
 ## Shared experiment workflows (2026-10-22)
 
 The follow-up keeps each game's selected provider, control abstraction and clock.

@@ -1,0 +1,1 @@
+Return exactly one JSON object with keys "rot" (0-3), "col" (0-9) and "reason" (one short English sentence, at most 25 words, stating what you see under the chosen columns and why the piece fits there). The reason is a brief public decision summary, not a reasoning trace. Do not use markdown or tools.

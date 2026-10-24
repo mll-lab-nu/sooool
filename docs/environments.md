@@ -22,12 +22,13 @@ An unprepared or outdated environment reports the required setup command.
 External sources, all game venvs and preparation records live in `~/.cache/sooool/`.
 `XDG_CACHE_HOME` selects another cache location. Racing, Badminton and
 TableTennis share the pinned RoboOlympics source but have separate venvs.
-Asterix, Touhou, Rhythm and PCBA use this checkout and separate cached venvs.
+Asterix, Tetris, Touhou, Rhythm and PCBA use this checkout and separate cached venvs.
 PCBA retains Python 3.11. The three original games use Python 3.12.
 The root `.venv` contains only the `sol` launcher. Install only the games you need:
 
 ```bash
 uv run sol env setup asterix
+uv run sol env setup tetris
 uv run sol env setup touhou
 uv run sol env setup rhythm
 uv run sol env setup pcba

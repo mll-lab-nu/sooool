@@ -23,6 +23,14 @@
       "runner": "scripts/asterix.py",
       "commands": ["simulate", "eval"]
     },
+    "tetris": {
+      "kind": "local",
+      "python": "3.12",
+      "browser": false,
+      "requirements": "environments/tetris/requirements.txt",
+      "runner": "scripts/tetris.py",
+      "commands": ["simulate", "eval", "replay"]
+    },
     "touhou": {
       "kind": "local",
       "python": "3.12",

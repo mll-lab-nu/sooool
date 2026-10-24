@@ -1,0 +1,81 @@
+# Place the falling piece
+
+You know Tetris. Each request shows the game screen (board, HOLD, one NEXT piece, score/lines/level; nothing is
+annotated). The piece in play is the falling one, not yet part of the stack; it may already have fallen some rows.
+Hollow outlines show where it would land if dropped where it is. Columns are numbered 0-9 from the left.
+
+Reply with exactly one JSON object for the piece in play:
+
+    {"rot": 1, "col": 3, "reason": "Column 4 is one row lower than column 3, so the vertical S sits flush there with no gap."}
+
+- `rot`: 0-3, orientation from the shape table below (rot0 is how the piece spawns; each +1 is a 90 degree clockwise turn).
+- `col`: the column number of the LEFTMOST column the piece occupies after rotating. It is dropped straight down there.
+- Holes are the main thing to avoid: an empty cell under a filled one stays unusable until every row above it is cleared.
+  Before answering, compare several columns and rotations. If ANY spot lets every column under the piece rest
+  directly on the stack (no empty cell left underneath), choose such a spot, even if it is one or two rows higher.
+  Accept a gap only when no gap-free spot exists anywhere, with one exception: a placement that completes two or
+  more rows at once is worth one hole, and takes priority over a gap-free spot that completes nothing.
+- Always check the deepest well first: if a column is three or more rows lower than its neighbours, count how many
+  rows a vertical piece dropped into it would complete. Two or more: drop it there now, even with one hole. Do not
+  save the well for a later I piece when the stack beside it is already five rows or higher.
+Gap-free fits. Column height = number of filled rows from the floor up to the top filled cell of that column
+(0 if empty). A piece sits with no gap only when the columns it covers have exactly these heights, where h is any number:
+  I rot0: needs column heights (h, h, h, h) left to right
+  I rot1: needs column heights (h) left to right
+  J rot0: needs column heights (h, h, h) left to right
+  J rot1: needs column heights (h, h+2) left to right
+  J rot2: needs column heights (h+1, h+1, h) left to right
+  J rot3: needs column heights (h, h) left to right
+  L rot0: needs column heights (h, h, h) left to right
+  L rot1: needs column heights (h, h) left to right
+  L rot2: needs column heights (h, h+1, h+1) left to right
+  L rot3: needs column heights (h+2, h) left to right
+  O rot0: needs column heights (h, h) left to right
+  S rot0: needs column heights (h, h, h+1) left to right
+  S rot1: needs column heights (h+1, h) left to right
+  T rot0: needs column heights (h, h, h) left to right
+  T rot1: needs column heights (h, h+1) left to right
+  T rot2: needs column heights (h+1, h, h+1) left to right
+  T rot3: needs column heights (h+1, h) left to right
+  Z rot0: needs column heights (h+1, h, h) left to right
+  Z rot1: needs column heights (h, h+1) left to right
+
+Shapes (# = filled), each drawn in its tight bounding box:
+
+```
+I:
+  ####  #     ####  #
+        #           #
+        #           #
+        #           #
+  rot0  rot1  rot2  rot3
+J:
+  #..   ##    ###   .#
+  ###   #.    ..#   .#
+        #.          ##
+  rot0  rot1  rot2  rot3
+L:
+  ..#   #.    ###   ##
+  ###   #.    #..   .#
+        ##          .#
+  rot0  rot1  rot2  rot3
+O:
+  ##
+  ##
+  rot0
+S:
+  .##   #.    .##   #.
+  ##.   ##    ##.   ##
+        .#          .#
+  rot0  rot1  rot2  rot3
+T:
+  .#.   #.    ###   .#
+  ###   ##    .#.   ##
+        #.          .#
+  rot0  rot1  rot2  rot3
+Z:
+  ##.   .#    ##.   .#
+  .##   ##    .##   ##
+        #.          #.
+  rot0  rot1  rot2  rot3
+```
